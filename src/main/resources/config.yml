@@ -1,0 +1,9 @@
+ver: Alpha-1.0
+
+Interval time: 600
+
+MinTPS: 15.00
+Keep time: 30
+Enable SMART mode: false
+
+Enable NoneAI: false
