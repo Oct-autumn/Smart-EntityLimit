@@ -28,6 +28,9 @@
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$MAVEN_REPOSITORY$/com/destroystokyo/paper/paper-api/1.16.5-R0.1-SNAPSHOT/paper-api-1.16.5-R0.1-20210707.175034-357.jar!/org/bukkit/plugin/java/JavaPlugin.class" root0="SKIP_INSPECTION" />
+  </component>
   <component name="ProjectId" id="1v2DoyTGEsLqPcpaSZS18FE6OOo" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
