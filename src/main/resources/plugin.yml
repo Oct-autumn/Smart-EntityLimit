@@ -4,10 +4,9 @@ version: 1.0-Build
 # 以上是插件基本信息，以下是命令注册
 
 commands:
-  TPS_Check_Time: # 命令的基本名，请不要使用奇怪的字符！
-    aliases: # 别名，方便玩家使用
-      - "TPSCT"
-    usage: "/TPS_Check_Time <Option> <data>" # 用法
-    description: "Show or set TPS_Monitor's timer." # 描述
-    permission: "OP" # 需要的权限，通常不用
+  smart-entity-limit: # 命令的基本名，请不要使用奇怪的字符！
+    aliases: SmartEL # 别名，方便玩家使用
+    usage: "/SmartEntityLimit <Option> <data>" # 用法
+    description: "Show or change SmartEntityLimit plugin's Config." # 描述
+    permission: "op" # 需要的权限，通常不用
     permission-message: "Only OP can do that." # 无权限返回的消息，通常不用

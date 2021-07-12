@@ -1,2 +1,5 @@
 cn\OctAutumn\SmartEntityLimit\RuleLoading.class
 cn\OctAutumn\SmartEntityLimit\Core.class
+cn\OctAutumn\SmartEntityLimit\Core$RulesFile.class
+cn\OctAutumn\SmartEntityLimit\CmdProcessor.class
+cn\OctAutumn\SmartEntityLimit\TPS_Monitor.class
