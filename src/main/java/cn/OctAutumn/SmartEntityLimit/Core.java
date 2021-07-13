@@ -85,6 +85,30 @@ public class Core extends JavaPlugin
             }
             return false;
         }
+
+        public boolean SaveRulesFile()
+        {
+            if (Rule_File == null)
+            {
+                getLogger().info("\033[31;1m" + "[ERROR] \"" + this.FileName + "\" has not been loaded yet." + "\033[0m");
+                return false;
+            }
+            if (Rule_Config == null)
+            {
+                getLogger().info("\033[31;1m" + "[ERROR] The configuration corresponding to \"" + this.FileName + "\" has not been loaded yet." + "\033[0m");
+                return false;
+            }
+
+            try
+            {
+                Rule_Config.save(Rule_File);
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+                return false;
+            }
+            return true;
+        }
     }
 
     //规则配置文件
