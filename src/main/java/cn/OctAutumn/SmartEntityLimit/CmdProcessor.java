@@ -1,15 +1,21 @@
 package cn.OctAutumn.SmartEntityLimit;
 
-import com.sun.tools.javac.Main;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static net.kyori.adventure.text.Component.text;
 
 public class CmdProcessor implements TabExecutor
 {
@@ -24,6 +30,9 @@ public class CmdProcessor implements TabExecutor
     //启用标记
     public boolean Enabled = true;
 
+    //Json生成器
+    JsonTextElement JsonMsg = new JsonTextElement();
+
     @Override
     @ParametersAreNonnullByDefault
     public boolean onCommand(CommandSender sender, Command command, String s, String[] parameter)
@@ -33,16 +42,6 @@ public class CmdProcessor implements TabExecutor
             sender.sendMessage("[INFO] SEL disabled.");
             return false;
         }
-
-        /*
-        if (parameter[0].equals("show"))
-            if (parameter[1].equals("Tps_CheckInterval"))
-            {
-                sender.sendMessage("[SEL INFO] Command receive");
-                sender.sendMessage(new Core().Interval_time + "s");
-                return true;
-            }
-         */
 
         {
             if (sender instanceof Player)
@@ -67,7 +66,17 @@ public class CmdProcessor implements TabExecutor
                             case "SmartMode":
                             case "NoneAI":
                         }
+                    case "CleanNow_OpConfirm":    //不能用Tab补全，防止误操作
+                        //广播清理通知
+                        JsonMsg.BuilderInitialize();
+                        JsonMsg.MsgBuilder.append(text("呜~ 应 Op." + sender.getName() + " 的要求，将于30秒后开始清理实体", Style.style(TextColor.color(255, 250, 205), TextDecoration.BOLD)));
+                        JsonMsg.BroadCast();
+
+                        MainClass.LimitOperator.operate(sender, 30);
+
+                        return true;
                 }
+                sender.sendMessage("[SEL][暂不开放服务器内部调整参数的功能]");
             } else
             {//控制台，简单一点
                 switch (parameter[0])

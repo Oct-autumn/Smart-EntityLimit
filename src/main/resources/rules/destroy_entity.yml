@@ -1,4 +1,32 @@
 CheckCode: DE
 
 destroy-entities:
+  - cave_spider
+  - enderman
+  - piglin
+  - blaze
+  - creeper
+  - drowned
+  - elder_guardian
+  - endermite
+  - evoker
+  - ghast
+  - guardian
+  - hoglin
+  - husk
+  - magma_cube
+  - phantom
+  - piglin_brute
+  - pillager
+  - ravager
+  - silverfish
+  - skeleton
+  - slime
+  - stray
+  - vex
+  - vindicator
+  - witch
+  - wither_skeleton
+  - zoglin
+  - zombie_villager
   - zombie

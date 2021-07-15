@@ -6,7 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.*;
-import java.util.Objects;
+import java.util.*;
 
 public class Core extends JavaPlugin
 {
@@ -14,12 +14,14 @@ public class Core extends JavaPlugin
     FileConfiguration MainConfig = null;
 
     //规则配置文件类
-    public class RulesFile
+    public class Rules
     {
         String FileName = "";
         String CheckCode = "";
         File Rule_File = null;
         FileConfiguration Rule_Config = null;
+
+        List<String> RuleEntity = List.of();
 
         public void setFileInfo(String file_name, String check_code)
         {
@@ -75,15 +77,17 @@ public class Core extends JavaPlugin
                     this.Rule_File = new File(RulesFolder.getAbsolutePath() + "\\" + this.FileName);
                     this.Rule_Config = YamlConfiguration.loadConfiguration(this.Rule_File);
                     if (this.Rule_Config.getString("CheckCode", "UN").equals(this.CheckCode))
+                    {
                         getLogger().info("[INFO] Default \"" + this.FileName + "\" loaded.");
-                    else
+                        return true;
+                    } else
                     {//原始配置文件错误，报错
                         getLogger().info("\033[31;1m" + "[ERROR] Default \"" + this.FileName + "\" has been damaged. Please reinstall this plugin" + "\033[0m");
                         return false;
                     }
                 }
             }
-            return false;
+            return true;
         }
 
         public boolean SaveRulesFile()
@@ -109,12 +113,17 @@ public class Core extends JavaPlugin
             }
             return true;
         }
+
+        public void LoadRules()
+        {
+            RuleEntity = Rule_Config.getStringList("destroy-entities");
+        }
     }
 
     //规则配置文件
-    public RulesFile Destroy_Entity = new RulesFile();
-    public RulesFile Keep_Entity = new RulesFile();
-    public RulesFile RemoveAI_Entity = new RulesFile();
+    public Rules Destroy_Entity = new Rules();
+    public Rules Keep_Entity = new Rules();
+    public Rules RemoveAI_Entity = new Rules();
 
     //配置变量 及 默认配置
     public long Interval_time = 600;
@@ -123,9 +132,11 @@ public class Core extends JavaPlugin
     public boolean SmartMode_Enabled = true;
     public boolean NoneAI_Enabled = false;
 
-    //
-    public TPS_Monitor TPS_monitor = new TPS_Monitor(this);
+    //功能模块
+    public TPS_Monitor TPS_Monitor_Runnable = new TPS_Monitor(this);
     public CmdProcessor CmdProcess = new CmdProcessor(this);
+    public Thread TPS_Monitor_Thread = new Thread(TPS_Monitor_Runnable);
+    public EntityLimit LimitOperator = new EntityLimit(this);
 
     //覆写onLoad()方法
     @Override
@@ -162,6 +173,7 @@ public class Core extends JavaPlugin
         //加载销毁实体列表
         Destroy_Entity.setFileInfo("destroy_entity", "DE");
         Destroy_Entity.LoadRulesFile();
+        Destroy_Entity.LoadRules();
         //加载保留实体列表
         Keep_Entity.setFileInfo("keep_entity", "KE");
         Keep_Entity.LoadRulesFile();
@@ -177,30 +189,38 @@ public class Core extends JavaPlugin
         //注册命令实现与补全
         Objects.requireNonNull(Bukkit.getPluginCommand("smart-entity-limit")).setExecutor(CmdProcess);
         Objects.requireNonNull(Bukkit.getPluginCommand("smart-entity-limit")).setTabCompleter(CmdProcess);
-        //创建TPS监视线程
-        // Thread Monitor_TPS = new Thread(TPS_monitor);
-        // Monitor_TPS.start();
+        //启动TPS监视线程（保险起见，还是检查一次线程活性）
+        if (!TPS_Monitor_Thread.isAlive())
+            TPS_Monitor_Thread.start();
 
-        enabled();
+        //初始化运行参数
+        TPS_Monitor_Runnable.Monitor_Thread_Wait = false;
+        TPS_Monitor_Runnable.Monitor_Running = true;
+
+        CmdProcess.Enabled = true;
+
         getLogger().info("\033[32;1m" + "[INFO] SEL enabled." + "\033[0m");
     }
 
     @Override
     public void onDisable()
     {
-        disable();
+        TPS_Monitor_Runnable.stop();    //调用stop()方法，停止监视器线程
+
+        CmdProcess.Enabled = true;
+
         getLogger().info("\033[31;1m" + "[INFO] SEL disabled." + "\033[0m");
     }
 
+    @Deprecated
     public void enabled()
     {
-        new CmdProcessor(this).Enabled = true;
-        new TPS_Monitor(this).Enabled = true;
+
     }
 
+    @Deprecated
     public void disable()
     {
-        new CmdProcessor(this).Enabled = false;
-        new TPS_Monitor(this).Enabled = false;
+
     }
 }
