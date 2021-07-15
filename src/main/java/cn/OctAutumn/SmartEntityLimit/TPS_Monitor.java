@@ -91,10 +91,18 @@ public class TPS_Monitor implements Runnable
                 {//TPS仍然低于触发值
                     //广播TPS过低消息
                     JsonMsg.BuilderInitialize();
-                    JsonMsg.MsgBuilder.append(text("唔~服务器TPS低于标准咯（1min：" + String.format("%.02f", sever_TPS[0]) + "），将在15秒后开始清理", Style.style(TextColor.color(255, 250, 205), TextDecoration.BOLD)));
+                    JsonMsg.MsgBuilder.append(text("唔~服务器TPS低于标准咯（1min：" + String.format("%.02f", sever_TPS[0]) + "/"+String.format("%.02f", MainClass.TPS_Trigger)+"），将在15秒后开始清理", Style.style(TextColor.color(255, 250, 205), TextDecoration.BOLD)));
                     JsonMsg.BroadCast();
 
-                    MainClass.LimitOperator.operate(null, 15);
+                    try
+                    {//暂停15s
+                        Thread.sleep(15 * 1000);
+                    } catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
+                    }
+
+                    MainClass.LimitOperator.operate();
 
                     while (!Monitor_Running)
                     {

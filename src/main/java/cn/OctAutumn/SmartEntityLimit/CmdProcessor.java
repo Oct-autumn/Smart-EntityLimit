@@ -72,7 +72,7 @@ public class CmdProcessor implements TabExecutor
                         JsonMsg.MsgBuilder.append(text("呜~ 应 Op." + sender.getName() + " 的要求，将于30秒后开始清理实体", Style.style(TextColor.color(255, 250, 205), TextDecoration.BOLD)));
                         JsonMsg.BroadCast();
 
-                        MainClass.LimitOperator.operate(sender, 30);
+                        MainClass.LimitOperator.operate(30);
 
                         return true;
                 }

@@ -15,42 +15,22 @@ import java.util.*;
 public class EntityLimit
 {
     Core MainClass;
-    CommandSender Sender;
 
     public EntityLimit(Core core)
     {
         MainClass = core;
     }
 
-    public int Delay_sec;
     //Json生成器
     JsonTextElement JsonMsg = new JsonTextElement();
 
-    public class Operator extends Thread
+    //实体清理方法
+    public synchronized void Operator()
     {
-        @Override
-        public void run()
-        {
-            //运行时暂停TPS监视器线程
-            MainClass.TPS_Monitor_Runnable.Monitor_Running = false;
-
             //5个数值，分别对应着：[0]搜索到的实体数、[1]清除实体数、[2]保留实体数、[3]AI抑制实体数、[4]剩余实体数
             int EntitySum[] = {0, 0, 0, 0, 0};
 
-            //延迟启动
-            if (Delay_sec != 0)
-            {
-                try
-                {
-                    Thread.sleep(Delay_sec * 1000);
-                } catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
-            }
 
-            JsonMsg.MsgBuilder.append(Component.text("现在开始清理...", Style.style(TextColor.color(127, 255, 212), TextDecoration.BOLD)));
-            JsonMsg.BroadCast();
 
             List<World> WorldList = Bukkit.getServer().getWorlds();
 
@@ -88,41 +68,42 @@ public class EntityLimit
 
             EntitySum[4] = EntitySum[0] - EntitySum[1];
 
-            JsonMsg.MsgBuilder.append(Component.text("刚刚一共搜索到了", Style.style(TextColor.color(0, 255, 127))));
-            JsonMsg.MsgBuilder.append(Component.text(String.valueOf(EntitySum[0]), Style.style(TextColor.color(152, 245, 255), TextDecoration.BOLD)));
-            JsonMsg.MsgBuilder.append(Component.text("个实体，删除了", Style.style(TextColor.color(0, 255, 127))));
-            JsonMsg.MsgBuilder.append(Component.text(String.valueOf(EntitySum[1]), Style.style(TextColor.color(152, 245, 255), TextDecoration.BOLD)));
-            JsonMsg.MsgBuilder.append(Component.text("个，保留了", Style.style(TextColor.color(0, 255, 127))));
-            JsonMsg.MsgBuilder.append(Component.text(String.valueOf(EntitySum[2]), Style.style(TextColor.color(152, 245, 255), TextDecoration.BOLD)));
-            JsonMsg.MsgBuilder.append(Component.text("个，AI抑制了", Style.style(TextColor.color(0, 255, 127))));
-            JsonMsg.MsgBuilder.append(Component.text(String.valueOf(EntitySum[3]), Style.style(TextColor.color(152, 245, 255), TextDecoration.BOLD)));
-            JsonMsg.MsgBuilder.append(Component.text("个，最终剩余实体", Style.style(TextColor.color(0, 255, 127))));
-            JsonMsg.MsgBuilder.append(Component.text(String.valueOf(EntitySum[4]), Style.style(TextColor.color(152, 245, 255), TextDecoration.BOLD)));
-            JsonMsg.MsgBuilder.append(Component.text("个.", Style.style(TextColor.color(0, 255, 127))));
-            JsonMsg.BroadCast();
-
-            MainClass.TPS_Monitor_Runnable.Monitor_Running = true;  //唤醒TPS监视器线程
-        }
+            {//清理后汇报
+                JsonMsg.MsgBuilder.append(Component.text("刚刚一共搜索到了", Style.style(TextColor.color(0, 255, 127))));
+                JsonMsg.MsgBuilder.append(Component.text(String.valueOf(EntitySum[0]), Style.style(TextColor.color(152, 245, 255), TextDecoration.BOLD)));
+                JsonMsg.MsgBuilder.append(Component.text("个实体，删除了", Style.style(TextColor.color(0, 255, 127))));
+                JsonMsg.MsgBuilder.append(Component.text(String.valueOf(EntitySum[1]), Style.style(TextColor.color(152, 245, 255), TextDecoration.BOLD)));
+                JsonMsg.MsgBuilder.append(Component.text("个，保留了", Style.style(TextColor.color(0, 255, 127))));
+                JsonMsg.MsgBuilder.append(Component.text(String.valueOf(EntitySum[2]), Style.style(TextColor.color(152, 245, 255), TextDecoration.BOLD)));
+                JsonMsg.MsgBuilder.append(Component.text("个，AI抑制了", Style.style(TextColor.color(0, 255, 127))));
+                JsonMsg.MsgBuilder.append(Component.text(String.valueOf(EntitySum[3]), Style.style(TextColor.color(152, 245, 255), TextDecoration.BOLD)));
+                JsonMsg.MsgBuilder.append(Component.text("个，最终剩余实体", Style.style(TextColor.color(0, 255, 127))));
+                JsonMsg.MsgBuilder.append(Component.text(String.valueOf(EntitySum[4]), Style.style(TextColor.color(152, 245, 255), TextDecoration.BOLD)));
+                JsonMsg.MsgBuilder.append(Component.text("个.", Style.style(TextColor.color(0, 255, 127))));
+                JsonMsg.BroadCast();
+            }
     }
 
-    Thread T = new Operator();  //清理线程
-
-    public void operate(CommandSender sender, int time)
+    //带延时的清理
+    public void operate(int time)
     {
-        Sender = sender;
-        Delay_sec = time;
-
-        if (!T.isAlive())
-            T.start();
-        else
+        Thread T = new Thread(() ->
         {
-            if (Sender != null)
+            try
             {
-                JsonMsg.BuilderInitialize();
-                JsonMsg.MsgBuilder.append(Component.text("清理已经在计划中了哦~", Style.style(TextColor.color(255, 0, 0), TextDecoration.BOLD)));
-                Sender.sendMessage(JsonMsg.MsgBuilder.build());
-                JsonMsg.BuilderInitialize();
+                Thread.sleep(time * 1000L);
+            } catch (InterruptedException e)
+            {
+                e.printStackTrace();
             }
-        }
+            Operator();
+        });
+        T.start();
+    }
+
+    //不带延时的清理
+    public void operate()
+    {
+        Operator();
     }
 }
