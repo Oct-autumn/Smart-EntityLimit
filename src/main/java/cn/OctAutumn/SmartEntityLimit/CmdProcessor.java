@@ -9,8 +9,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +32,6 @@ public class CmdProcessor implements TabExecutor
     JsonTextElement JsonMsg = new JsonTextElement();
 
     @Override
-    @ParametersAreNonnullByDefault
     public boolean onCommand(CommandSender sender, Command command, String s, String[] parameter)
     {
         if (!Enabled)
@@ -191,6 +188,15 @@ public class CmdProcessor implements TabExecutor
                                 sender.sendMessage("\033[33;1m" + "[Smart Entity Limit] [INFO] Illegal input." + "\033[0m");
                                 return true;
                         }
+                    case "CleanNow_OpConfirm":    //不能用Tab补全，防止误操作
+                        //广播清理通知
+                        JsonMsg.BuilderInitialize();
+                        JsonMsg.MsgBuilder.append(text("呜~ 应 CommandTerminal 的要求，将于30秒后开始清理实体", Style.style(TextColor.color(255, 250, 205), TextDecoration.BOLD)));
+                        JsonMsg.BroadCast();
+
+                        MainClass.LimitOperator.operate(30);
+
+                        return true;
                 }
             }
         }
@@ -199,7 +205,6 @@ public class CmdProcessor implements TabExecutor
     }
 
     @Override
-    @ParametersAreNonnullByDefault
     public List<String> onTabComplete(CommandSender sender, Command command, String s, String[] parameter)
     {
         if (!Enabled)

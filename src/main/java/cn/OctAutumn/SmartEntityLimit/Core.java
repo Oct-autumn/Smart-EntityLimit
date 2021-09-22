@@ -41,19 +41,24 @@ public class Core extends JavaPlugin
 
         public boolean LoadRulesFile()
         {
+            //根据操作系统确定分隔符
+            char delimiter = '/';
+            if (System.getProperty("os.name").toLowerCase().equals("windows"))
+                delimiter = '\\';
+
             //--定位规则文件夹--
-            File RulesFolder = new File(getDataFolder(), "\\rules");
+            File RulesFolder = new File(getDataFolder(), delimiter+"rules");
             if (!RulesFolder.exists())
                 RulesFolder.mkdirs();   //不存在则创建
-            this.Rule_File = new File(RulesFolder.getAbsolutePath() + "\\" + this.FileName);
+            this.Rule_File = new File(RulesFolder.getAbsolutePath() + delimiter + this.FileName);
             if (!this.Rule_File.exists())
             {//不存在则创建
                 //反馈警告
                 getLogger().info("\033[33;1m" + "[WARNING] \"" + this.FileName + "\" does not exist. Default rule file will be create." + "\033[0m");
                 //新建Default配置副本
-                saveResource("rules\\" + this.FileName, false);
+                saveResource("rules"+ delimiter + this.FileName, false);
                 //校验
-                this.Rule_File = new File(RulesFolder.getAbsolutePath() + "\\" + this.FileName);
+                this.Rule_File = new File(RulesFolder.getAbsolutePath() + delimiter + this.FileName);
                 this.Rule_Config = YamlConfiguration.loadConfiguration(this.Rule_File);
                 if (this.Rule_Config.getString("CheckCode", "UN").equals(this.CheckCode))
                 {
@@ -72,9 +77,9 @@ public class Core extends JavaPlugin
                 else
                 {
                     getLogger().info("\033[33;1m" + "[WARNING] \"" + this.FileName + "\" has been damaged. Plugin will use default rule file." + "\033[0m");
-                    saveResource("rules\\" + this.FileName, true);
+                    saveResource("rules" + delimiter + this.FileName, true);
                     //再校验
-                    this.Rule_File = new File(RulesFolder.getAbsolutePath() + "\\" + this.FileName);
+                    this.Rule_File = new File(RulesFolder.getAbsolutePath() + delimiter + this.FileName);
                     this.Rule_Config = YamlConfiguration.loadConfiguration(this.Rule_File);
                     if (this.Rule_Config.getString("CheckCode", "UN").equals(this.CheckCode))
                     {
